@@ -41,6 +41,7 @@ export default class Playfield{
         this.bag = [];
 
         this.registerListeners();
+        this.generateNewBag();
         this.newBlockFromBag();
     }
 
@@ -49,6 +50,7 @@ export default class Playfield{
      https://tetris.wiki/Random_Generator
      */
     generateNewBag(){
+        console.log('generateNewBag');
         this.bag = [IBlock, JBlock, LBlock, OBlock, SBlock, TBlock, ZBlock];
         this.shuffleBag();
     }
@@ -58,13 +60,13 @@ export default class Playfield{
      If the bag is empty, generate a new one.
      */
     newBlockFromBag(){
-        if(this.bag.length == 0){
-            this.generateNewBag();
-        }
-
         const blockType = this.bag.shift();
         this.currentBlock = new blockType(3, 0);
         this.updateGhostBlock();
+
+        if(this.bag.length === 0){
+            this.generateNewBag();
+        }
 
         const event = new CustomEvent('TetrisNewNextBlock', {detail: {nextBlock: this.bag[0]}});
         document.dispatchEvent(event);
