@@ -10,7 +10,7 @@ import Block from './tetriminos/block';
 
 export default class Playfield{
     constructor(){
-        this.playfield = [
+        this.canvas = [
             [1,1,0,0,0,0,0,0,0,0,0,0,1,1],
             [1,1,0,0,0,0,0,0,0,0,0,0,1,1],
             [1,1,0,0,0,0,0,0,0,0,0,0,1,1],
@@ -66,6 +66,10 @@ export default class Playfield{
         this.currentBlock = new blockType(3, 0);
         this.updateGhostBlock();
 
+        console.log(this.bag[0]);
+        const event = new CustomEvent('TetrisNewNextBlock', {detail: {nextBlock: this.bag[0]}});
+        document.dispatchEvent(event);
+
         if(this.checkCollision(this.currentBlock)){
             const event = new Event('TetrisGameOver');
             document.dispatchEvent(event);
@@ -79,6 +83,23 @@ export default class Playfield{
         for (let i = this.bag.length; i; i--) {
             let j = Math.floor(Math.random() * i);
             [this.bag[i - 1], this.bag[j]] = [this.bag[j], this.bag[i - 1]];
+        }
+    }
+
+    /*
+    Move the current block to hold
+     */
+    holdBlock(e){
+        const event = new CustomEvent('TetrisNewHoldBlock', {detail: {holdBlock: this.currentBlock}});
+        document.dispatchEvent(event);
+
+        if(!e.detail.holdBlock){
+            this.newBlockFromBag()
+        }else{
+            this.currentBlock = e.detail.holdBlock;
+            this.currentBlock.x = 3;
+            this.currentBlock.y = 0;
+            this.updateGhostBlock();
         }
     }
 
@@ -145,7 +166,7 @@ export default class Playfield{
      Stores the currentblock into the playfield.
      */
     saveBlock(){
-        this.playfield = this.renderTempField();
+        this.canvas = this.renderTempField();
     }
 
     /*
@@ -154,30 +175,28 @@ export default class Playfield{
     checkLines(){
         let clearedRows = 0;
 
-        for(let y = 0; y < this.playfield.length; y++){
+        for(let y = 0; y < this.canvas.length; y++){
             let sumRow = 0;
 
-            for(let x = 0; x < this.playfield[y].length; x++){
+            for(let x = 0; x < this.canvas[y].length; x++){
                 //If the row contains a 0, skip the row
-                if(this.playfield[y][x] == 0){
+                if(this.canvas[y][x] == 0){
                     sumRow = 0;
                     break;
                 }
 
-                sumRow += this.playfield[y][x];
+                sumRow += this.canvas[y][x];
             }
 
             //If the sum of the row is higher than 14, it means a block is present since it's bigger than 1,1,1,1,1,1,1,1,1,1,1,1,1,1
             if(sumRow > 14){
-                this.playfield.splice(y, 1);
+                this.canvas.splice(y, 1);
                 this.addNewRow();
                 clearedRows++;
             }
         }
 
         if(clearedRows > 0){
-            console.log(clearedRows);
-
             const event = new CustomEvent('TetrisRowsCleared', {detail: {clearedRows: clearedRows}});
             document.dispatchEvent(event);
         }
@@ -187,7 +206,7 @@ export default class Playfield{
      Adds a new row on top of the playfield.
      */
     addNewRow(){
-        this.playfield.unshift([1,1,0,0,0,0,0,0,0,0,0,0,1,1]);
+        this.canvas.unshift([1,1,0,0,0,0,0,0,0,0,0,0,1,1]);
     }
 
     /*
@@ -236,7 +255,7 @@ export default class Playfield{
                 for(let x = 0; x < block.shape[y].length; x++){
                     //When the value of the block is not 0 and on that place in the playfield the value
                     //of the playfield is also not 0, we have collision.
-                    if(block.shape[y][x] !== 0 && this.playfield[y + block.y][x + block.x + 2] !== 0){
+                    if(block.shape[y][x] !== 0 && this.canvas[y + block.y][x + block.x + 2] !== 0){
                         collision = true;
                         break loop1;
                     }
@@ -266,25 +285,29 @@ export default class Playfield{
     registerListeners(){
         const self = this;
 
-        document.addEventListener('TetrisArrowLeft', function(e){
+        document.addEventListener('TetrisArrowLeft', function(){
             self.moveCurrentBlockLeft();
         });
 
-        document.addEventListener('TetrisArrowRight', function(e){
+        document.addEventListener('TetrisArrowRight', function(){
             self.moveCurrentBlockRight();
         });
 
-        document.addEventListener('TetrisArrowUp', function(e){
+        document.addEventListener('TetrisArrowUp', function(){
             self.rotateCurrentBlock();
         });
 
-        document.addEventListener('TetrisArrowDown', function(e){
+        document.addEventListener('TetrisArrowDown', function(){
             self.moveCurrentBlockDown();
         });
 
-        document.addEventListener('TetrisSpace', function(e){
+        document.addEventListener('TetrisSpace', function(){
             self.dropBlock();
-        })
+        });
+
+        document.addEventListener('TetrisTransferHoldBlock', function(e){
+            self.holdBlock(e);
+        });
     }
 
     /*
@@ -295,7 +318,7 @@ export default class Playfield{
          Create a new derefferenced playfield from the current playfield
          by splicing the row
          */
-        let tempField = this.playfield.map(function(arr){
+        let tempField = this.canvas.map(function(arr){
             return arr.slice();
         });
 

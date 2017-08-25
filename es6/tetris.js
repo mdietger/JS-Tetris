@@ -1,4 +1,6 @@
 import Playfield from './playfield';
+import Holdfield from './holdfield';
+import Nextfield from './nextfield';
 import { keys } from './const/keys';
 
 class Tetris{
@@ -7,11 +9,17 @@ class Tetris{
             tetris: 'tetris',
             score : 'score',
             rows  : 'rows',
-            level : 'level'
+            level : 'level',
+            hold  : 'hold',
+            next  : 'next'
         };
-        this.canvas    = document.getElementById(this.selectors.tetris);
-        this.fps       = 60;
+        this.tetrisCnvs= document.getElementById(this.selectors.tetris);
+        this.holdCnvs  = document.getElementById(this.selectors.hold);
+        this.nextCnvs  = document.getElementById(this.selectors.next);
+        this.holdfield = new Holdfield();
+        this.nextfield = new Nextfield();
         this.playfield = new Playfield();
+        this.fps       = 60;
         this.level     = 1;
         this.rows      = 0;
         this.score     = 0;
@@ -34,11 +42,11 @@ class Tetris{
             self.handleKeyEvents(e);
         });
 
-        document.addEventListener("TetrisGameOver", function(e){
+        document.addEventListener("TetrisGameOver", function(){
             self.endGame();
         });
 
-        document.addEventListener("TetrisPause", function(e){
+        document.addEventListener("TetrisPause", function(){
             self.pauseGame();
         });
 
@@ -89,7 +97,7 @@ class Tetris{
         const clearedRows = e.detail.clearedRows;
         this.rows += clearedRows;
         this.score += Math.floor(50 * Math.pow(1.1, clearedRows) * clearedRows);
-        this.level = Math.floor(this.score / 10000) + 1;
+        this.level = Math.floor(this.rows / 50) + 1;
     }
 
     /*
@@ -117,12 +125,16 @@ class Tetris{
      Draw everything to the screen.
      */
     draw(){
-        const ctx = this.canvas.getContext("2d");
+        const tetrisCtx = this.tetrisCnvs.getContext("2d");
+        const holdCtx = this.holdCnvs.getContext("2d");
+        const nextCtx = this.nextCnvs.getContext("2d");
 
         if(!this.gameOver){
-            this.playfield.draw(ctx);
+            this.playfield.draw(tetrisCtx);
+            this.holdfield.draw(holdCtx);
+            this.nextfield.draw(nextCtx);
         }else{
-            this.drawGameOver(ctx);
+            this.drawGameOver(tetrisCtx);
         }
 
         document.getElementById(this.selectors.score).innerText = this.score;
@@ -171,6 +183,10 @@ class Tetris{
             case keys.KeyP:
                 e.preventDefault();
                 event = new Event('TetrisPause');
+                break;
+            case keys.KeyH:
+                e.preventDefault();
+                event = new Event('TetrisHold');
                 break;
         }
 

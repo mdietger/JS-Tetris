@@ -2,10 +2,14 @@
 <head>
     <link href="https://fonts.googleapis.com/css?family=Oswald" rel="stylesheet">
     <style type="text/css">
-        #tetris{
+        .tetris{
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+        }
+        .tetris > canvas{
             border: 2px dashed #ccc;
-            margin: 0 auto;
-            display: block;
+            margin: 20px;
         }
         #stats{
             width: 280px;
@@ -19,12 +23,16 @@
     </style>
 </head>
 <body>
+<div class="tetris">
+    <canvas id="hold" width="160" height="120"></canvas>
     <canvas id="tetris" width="280" height="480"></canvas>
-    <div id="stats">
-        <div>Level: <span id="level">1</span></div>
-        <div>Rows: <span id="rows">0</span></div>
-        <div>Score: <span id="score">0</span></div>
-    </div>
-    <script src="dist/tetris.js" type="text/javascript"></script>
+    <canvas id="next" width="160" height="120"></canvas>
+</div>
+<div id="stats">
+    <div>Level: <span id="level">1</span></div>
+    <div>Rows: <span id="rows">0</span></div>
+    <div>Score: <span id="score">0</span></div>
+</div>
+<script src="dist/tetris.js" type="text/javascript"></script>
 </body>
 </html>
