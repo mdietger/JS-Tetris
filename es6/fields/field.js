@@ -1,40 +1,6 @@
-import { colors } from './const/colors';
+import { colors } from '../const/colors';
 
-export default class Nextfield{
-    constructor(){
-        this.canvas = [
-            [1,1,1,1,1,1,1,1],
-            [1,0,0,0,0,0,0,1],
-            [1,0,0,0,0,0,0,1],
-            [1,0,0,0,0,0,0,1],
-            [1,0,0,0,0,0,0,1],
-            [1,1,1,1,1,1,1,1]
-        ];
-
-        this.block = null;
-        this.registerListeners();
-    }
-
-    /*
-     Registers the events and add actions accordingly.
-     */
-    registerListeners(){
-        const self = this;
-
-        document.addEventListener('TetrisNewNextBlock', function(e){
-            self.setBlock(e);
-        });
-    }
-
-    /*
-     Set the block to a local variable
-     */
-    setBlock(e){
-        console.log(e);
-        const blockType = e.detail.nextBlock;
-        this.block = new blockType(0, 2);
-    }
-
+export default class Field{
     /*
      Draw everything to the canvas.
      */
@@ -62,7 +28,9 @@ export default class Nextfield{
         });
 
         //Merge the blocks with the playfield
-        this.renderBlock(tempField, this.block);
+        //for(let i = 0; i < this.mergeFields.length; i++){
+            this.renderBlock(tempField, this.currentBlock);
+        //}
 
         return tempField;
     }

@@ -1,6 +1,6 @@
-import Playfield from './playfield';
-import Holdfield from './holdfield';
-import Nextfield from './nextfield';
+import Playfield from './fields/playfield';
+import Holdfield from './fields/holdfield';
+import Nextfield from './fields/nextfield';
 import { keys } from './const/keys';
 
 class Tetris{

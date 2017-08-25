@@ -1,12 +1,12 @@
-import { colors } from './const/colors';
-import IBlock from './tetriminos/iblock';
-import JBlock from './tetriminos/jblock';
-import LBlock from './tetriminos/lblock';
-import OBlock from './tetriminos/oblock';
-import SBlock from './tetriminos/sblock';
-import TBlock from './tetriminos/tblock';
-import ZBlock from './tetriminos/zblock';
-import Block from './tetriminos/block';
+import { colors } from '../const/colors';
+import IBlock from '../tetriminos/iblock';
+import JBlock from '../tetriminos/jblock';
+import LBlock from '../tetriminos/lblock';
+import OBlock from '../tetriminos/oblock';
+import SBlock from '../tetriminos/sblock';
+import TBlock from '../tetriminos/tblock';
+import ZBlock from '../tetriminos/zblock';
+import Block from '../tetriminos/block';
 
 export default class Playfield{
     constructor(){
@@ -66,7 +66,6 @@ export default class Playfield{
         this.currentBlock = new blockType(3, 0);
         this.updateGhostBlock();
 
-        console.log(this.bag[0]);
         const event = new CustomEvent('TetrisNewNextBlock', {detail: {nextBlock: this.bag[0]}});
         document.dispatchEvent(event);
 

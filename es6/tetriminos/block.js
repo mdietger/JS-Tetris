@@ -1,17 +1,28 @@
 export default class Block{
     constructor(x, y){
-        this.x = x;
-        this.y = y;
+        this.x        = x;
+        this.y        = y;
+        this.rotation = 0;
     }
 
     rotateRight(){
         this.transpose();
         this.rowReverse();
+
+        this.rotation++;
+        if(this.rotation > 3){
+            this.rotation = 0;
+        }
     }
 
     rotateLeft(){
         this.transpose();
         this.columnReverse();
+
+        this.rotation--;
+        if(this.rotation < 0){
+            this.rotation = 3;
+        }
     }
 
     transpose(){
