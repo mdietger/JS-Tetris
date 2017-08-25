@@ -8,28 +8,70 @@ class Tetris{
         this.playfield = new Playfield();
         this.level     = 1;
         this.loopCount = 0;
+        this.gameOver  = false;
+        this.pause     = false;
+        this.timeout   = 1000/this.fps;
 
         this.registerListeners();
-
-        const self    = this;
-        const timeout = 1000/this.fps;
-        this.gameLoop = setInterval(function(){self.loop(self)}, timeout);
+        this.startGame();
     }
 
     /*
-    Register all listeners.
+     Register all listeners.
      */
     registerListeners(){
         const self = this;
 
         document.addEventListener("keydown", function(e){
-            e.preventDefault();
-            self.handleKeyEvents(e.keyCode);
+            self.handleKeyEvents(e);
+        });
+
+        document.addEventListener("TetrisGameOver", function(e){
+            self.endGame();
+        });
+
+        document.addEventListener("TetrisPause", function(e){
+            self.pauseGame();
         });
     }
 
     /*
-    The game loop itself.
+     Pauses the game
+     */
+    pauseGame(){
+        if(!this.pause){
+            this.pause = true;
+            this.stopGame();
+        }else{
+            this.pause = false;
+            this.startGame();
+        }
+    }
+
+    /*
+     Starts the gameloop
+     */
+    startGame(){
+        const self    = this;
+        this.gameLoop = setInterval(function(){self.loop(self)}, this.timeout);
+    }
+
+    /*
+     Stops the gameloop
+     */
+    stopGame(){
+        clearInterval(this.gameLoop);
+    }
+
+    /*
+    End's the game
+     */
+    endGame(){
+        this.gameOver = true;
+    }
+
+    /*
+     The game loop itself.
      */
     loop(self){
         self.update();
@@ -37,47 +79,72 @@ class Tetris{
     }
 
     /*
-    Update all values of the game.
+     Update all values of the game.
      */
     update(){
-        this.loopCount++;
+        if(!this.gameOver){
+            this.loopCount++;
 
-        if((this.loopCount % ((this.fps * 2) - (this.level * 5))) == 0){
-            this.playfield.moveCurrentBlockDown();
+            if((this.loopCount % ((this.fps * 2) - (this.level * 5))) == 0){
+                this.playfield.moveCurrentBlockDown();
+            }
         }
     }
 
     /*
-    Draw everything to the screen.
+     Draw everything to the screen.
      */
     draw(){
         var ctx = this.canvas.getContext("2d");
 
-        this.playfield.draw(ctx);
+        if(!this.gameOver){
+            this.playfield.draw(ctx);
+        }else{
+            this.drawGameOver(ctx);
+        }
+    }
+
+    drawGameOver(ctx){
+        ctx.clearRect(0, 0, 300, 600);
+        ctx.font = "30px Arial";
+        ctx.fillText("Game Over", 50, 250);
     }
 
     /*
-    When a key is pressed, fire a custom event so different components can handle
-    the events themself.
+     When a key is pressed, fire a custom event so different components can handle
+     the events themself.
      */
-    handleKeyEvents(keyCode){
+    handleKeyEvents(e){
         let event;
 
-        switch(keyCode){
+        if(this.pause){
+            return;
+        }
+
+        switch(e.keyCode){
             case keys.ArrowUp:
+                e.preventDefault();
                 event = new Event('TetrisArrowUp');
                 break;
             case keys.ArrowDown:
+                e.preventDefault();
                 event = new Event('TetrisArrowDown');
                 break;
             case keys.ArrowLeft:
+                e.preventDefault();
                 event = new Event('TetrisArrowLeft');
                 break;
             case keys.ArrowRight:
+                e.preventDefault();
                 event = new Event('TetrisArrowRight');
                 break;
             case keys.Space:
+                e.preventDefault();
                 event = new Event('TetrisSpace');
+                break;
+            case keys.KeyP:
+                e.preventDefault();
+                event = new Event('TetrisPause');
                 break;
         }
 

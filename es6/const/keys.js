@@ -3,5 +3,6 @@ export const keys = {
     ArrowDown : 40,
     ArrowLeft : 37,
     ArrowRight: 39,
-    Space     : 32
+    Space     : 32,
+    KeyP      : 80
 };

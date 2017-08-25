@@ -65,6 +65,11 @@ export default class Playfield{
         const blockType = this.bag.shift();
         this.currentBlock = new blockType(3, 0);
         this.updateGhostBlock();
+
+        if(this.checkCollision(this.currentBlock)){
+            const event = new Event('TetrisGameOver');
+            document.dispatchEvent(event);
+        }
     }
 
     /*
@@ -124,6 +129,16 @@ export default class Playfield{
         }
 
         return true;
+    }
+
+    rotateCurrentBlock(){
+        this.currentBlock.rotateRight();
+
+        if(this.checkCollision(this.currentBlock)){
+            this.currentBlock.rotateLeft();
+        }
+
+        this.updateGhostBlock();
     }
 
     /*
@@ -250,8 +265,7 @@ export default class Playfield{
         });
 
         document.addEventListener('TetrisArrowUp', function(e){
-            self.currentBlock.rotateRight();
-            self.updateGhostBlock();
+            self.rotateCurrentBlock();
         });
 
         document.addEventListener('TetrisArrowDown', function(e){
