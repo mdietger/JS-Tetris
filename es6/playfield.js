@@ -87,10 +87,10 @@ export default class Playfield{
      restore it's old position.
      */
     moveCurrentBlockRight(){
-        this.currentBlock.x += 1;
+        this.currentBlock.x++;
 
         if(this.checkCollision(this.currentBlock)){
-            this.currentBlock.x -= 1;
+            this.currentBlock.x--;
         }
 
         this.updateGhostBlock();
@@ -101,10 +101,10 @@ export default class Playfield{
      restore it's old position.
      */
     moveCurrentBlockLeft(){
-        this.currentBlock.x -= 1;
+        this.currentBlock.x--;
 
         if(this.checkCollision(this.currentBlock)){
-            this.currentBlock.x += 1;
+            this.currentBlock.x++;
         }
 
         this.updateGhostBlock();
@@ -116,10 +116,10 @@ export default class Playfield{
      Check if any lines are formed and created a new block.
      */
     moveCurrentBlockDown(){
-        this.currentBlock.y += 1;
+        this.currentBlock.y++;
 
         if(this.checkCollision(this.currentBlock)){
-            this.currentBlock.y -= 1;
+            this.currentBlock.y--;
 
             this.saveBlock();
             this.checkLines();
@@ -152,6 +152,8 @@ export default class Playfield{
      Check if there are new lines formed.
      */
     checkLines(){
+        let clearedRows = 0;
+
         for(let y = 0; y < this.playfield.length; y++){
             let sumRow = 0;
 
@@ -169,7 +171,15 @@ export default class Playfield{
             if(sumRow > 14){
                 this.playfield.splice(y, 1);
                 this.addNewRow();
+                clearedRows++;
             }
+        }
+
+        if(clearedRows > 0){
+            console.log(clearedRows);
+
+            const event = new CustomEvent('TetrisRowsCleared', {detail: {clearedRows: clearedRows}});
+            document.dispatchEvent(event);
         }
     }
 

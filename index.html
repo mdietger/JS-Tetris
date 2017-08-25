@@ -1,15 +1,30 @@
 <html>
 <head>
+    <link href="https://fonts.googleapis.com/css?family=Oswald" rel="stylesheet">
     <style type="text/css">
         #tetris{
             border: 2px dashed #ccc;
             margin: 0 auto;
             display: block;
         }
+        #stats{
+            width: 280px;
+            margin: 0 auto;
+            font-family: 'Oswald', sans-serif;
+        }
+
+        #stats div>span{
+            float: right;
+        }
     </style>
 </head>
 <body>
     <canvas id="tetris" width="280" height="480"></canvas>
+    <div id="stats">
+        <div>Level: <span id="level">1</span></div>
+        <div>Rows: <span id="rows">0</span></div>
+        <div>Score: <span id="score">0</span></div>
+    </div>
     <script src="dist/tetris.js" type="text/javascript"></script>
 </body>
 </html>

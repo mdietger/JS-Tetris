@@ -3,10 +3,18 @@ import { keys } from './const/keys';
 
 class Tetris{
     constructor(){
-        this.canvas    = document.getElementById('tetris');
+        this.selectors = {
+            tetris: 'tetris',
+            score : 'score',
+            rows  : 'rows',
+            level : 'level'
+        };
+        this.canvas    = document.getElementById(this.selectors.tetris);
         this.fps       = 60;
         this.playfield = new Playfield();
         this.level     = 1;
+        this.rows      = 0;
+        this.score     = 0;
         this.loopCount = 0;
         this.gameOver  = false;
         this.pause     = false;
@@ -33,6 +41,10 @@ class Tetris{
         document.addEventListener("TetrisPause", function(e){
             self.pauseGame();
         });
+
+        document.addEventListener("TetrisRowsCleared", function(e){
+            self.updateScores(e);
+        })
     }
 
     /*
@@ -64,10 +76,20 @@ class Tetris{
     }
 
     /*
-    End's the game
+     End's the game
      */
     endGame(){
         this.gameOver = true;
+    }
+
+    /*
+     Update the visual scores
+     */
+    updateScores(e){
+        const clearedRows = e.detail.clearedRows;
+        this.rows += clearedRows;
+        this.score += Math.floor(50 * Math.pow(1.1, clearedRows) * clearedRows);
+        this.level = Math.floor(this.score / 10000) + 1;
     }
 
     /*
@@ -95,13 +117,17 @@ class Tetris{
      Draw everything to the screen.
      */
     draw(){
-        var ctx = this.canvas.getContext("2d");
+        const ctx = this.canvas.getContext("2d");
 
         if(!this.gameOver){
             this.playfield.draw(ctx);
         }else{
             this.drawGameOver(ctx);
         }
+
+        document.getElementById(this.selectors.score).innerText = this.score;
+        document.getElementById(this.selectors.rows).innerText  = this.rows;
+        document.getElementById(this.selectors.level).innerText = this.level;
     }
 
     drawGameOver(ctx){
