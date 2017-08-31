@@ -155,7 +155,7 @@ class Tetris{
     handleKeyEvents(e){
         let event;
 
-        if(this.pause){
+        if(this.pause && e.keyCode !== keys.KeyP){
             return;
         }
 

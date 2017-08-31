@@ -50,7 +50,6 @@ export default class Playfield{
      https://tetris.wiki/Random_Generator
      */
     generateNewBag(){
-        console.log('generateNewBag');
         this.bag = [IBlock, JBlock, LBlock, OBlock, SBlock, TBlock, ZBlock];
         this.shuffleBag();
     }
