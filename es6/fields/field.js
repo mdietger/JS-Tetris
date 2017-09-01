@@ -21,16 +21,16 @@ export default class Field{
     renderTempField(){
         /*
          Create a new derefferenced playfield from the current playfield
-         by splicing the row
+         by splicing the rows
          */
         let tempField = this.canvas.map(function(arr){
             return arr.slice();
         });
 
         //Merge the blocks with the playfield
-        //for(let i = 0; i < this.mergeFields.length; i++){
-            this.renderBlock(tempField, this.currentBlock);
-        //}
+        Object.keys(this.blocks).forEach(key => {
+            this.renderBlock(tempField, this.blocks[key])
+        });
 
         return tempField;
     }

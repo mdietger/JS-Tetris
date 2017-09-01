@@ -1,4 +1,3 @@
-import { colors } from '../const/colors';
 import IBlock from '../tetriminos/iblock';
 import JBlock from '../tetriminos/jblock';
 import LBlock from '../tetriminos/lblock';
@@ -7,9 +6,12 @@ import SBlock from '../tetriminos/sblock';
 import TBlock from '../tetriminos/tblock';
 import ZBlock from '../tetriminos/zblock';
 import Block from '../tetriminos/block';
+import Field from './field';
 
-export default class Playfield{
+export default class Playfield extends Field{
     constructor(){
+        super();
+
         this.canvas = [
             [1,1,0,0,0,0,0,0,0,0,0,0,1,1],
             [1,1,0,0,0,0,0,0,0,0,0,0,1,1],
@@ -36,12 +38,14 @@ export default class Playfield{
             [1,1,1,1,1,1,1,1,1,1,1,1,1,1],
             [1,1,1,1,1,1,1,1,1,1,1,1,1,1],
         ];
-        this.currentBlock = null;
-        this.ghostBlock = null;
         this.bag = [];
+        this.blocks = {
+            ghostBlock: null,
+            currentBlock: null
+        };
 
         this.registerListeners();
-        this.generateNewBag();
+        this.generateNewBag(true);
         this.newBlockFromBag();
     }
 
@@ -49,9 +53,9 @@ export default class Playfield{
      Generates a new random bag of 7 tetriminos.
      https://tetris.wiki/Random_Generator
      */
-    generateNewBag(){
+    generateNewBag(fromConstructor){
         this.bag = [IBlock, JBlock, LBlock, OBlock, SBlock, TBlock, ZBlock];
-        this.shuffleBag();
+        this.shuffleBag(fromConstructor);
     }
 
     /*
@@ -60,17 +64,17 @@ export default class Playfield{
      */
     newBlockFromBag(){
         const blockType = this.bag.shift();
-        this.currentBlock = new blockType(3, 0);
+        this.blocks.currentBlock = new blockType(3, 0);
         this.updateGhostBlock();
 
         if(this.bag.length === 0){
-            this.generateNewBag();
+            this.generateNewBag(false);
         }
 
         const event = new CustomEvent('TetrisNewNextBlock', {detail: {nextBlock: this.bag[0]}});
         document.dispatchEvent(event);
 
-        if(this.checkCollision(this.currentBlock)){
+        if(this.checkCollision(this.blocks.currentBlock)){
             const event = new Event('TetrisGameOver');
             document.dispatchEvent(event);
         }
@@ -79,10 +83,16 @@ export default class Playfield{
     /*
      Shuffles the tertriminos
      */
-    shuffleBag(){
+    shuffleBag(firstBag){
         for (let i = this.bag.length; i; i--) {
             let j = Math.floor(Math.random() * i);
             [this.bag[i - 1], this.bag[j]] = [this.bag[j], this.bag[i - 1]];
+        }
+
+        if(firstBag){
+            if(this.bag[0] == SBlock || this.bag[0] == ZBlock || this.bag[0] == OBlock){
+                this.shuffleBag(true);
+            }
         }
     }
 
@@ -90,15 +100,15 @@ export default class Playfield{
     Move the current block to hold
      */
     holdBlock(e){
-        const event = new CustomEvent('TetrisNewHoldBlock', {detail: {holdBlock: this.currentBlock}});
+        const event = new CustomEvent('TetrisNewHoldBlock', {detail: {holdBlock: this.blocks.currentBlock}});
         document.dispatchEvent(event);
 
         if(!e.detail.holdBlock){
             this.newBlockFromBag()
         }else{
-            this.currentBlock = e.detail.holdBlock;
-            this.currentBlock.x = 3;
-            this.currentBlock.y = 0;
+            this.blocks.currentBlock   = e.detail.holdBlock;
+            this.blocks.currentBlock.x = 3;
+            this.blocks.currentBlock.y = 0;
             this.updateGhostBlock();
         }
     }
@@ -108,10 +118,10 @@ export default class Playfield{
      restore it's old position.
      */
     moveCurrentBlockRight(){
-        this.currentBlock.x++;
+        this.blocks.currentBlock.x++;
 
-        if(this.checkCollision(this.currentBlock)){
-            this.currentBlock.x--;
+        if(this.checkCollision(this.blocks.currentBlock)){
+            this.blocks.currentBlock.x--;
         }
 
         this.updateGhostBlock();
@@ -122,10 +132,10 @@ export default class Playfield{
      restore it's old position.
      */
     moveCurrentBlockLeft(){
-        this.currentBlock.x--;
+        this.blocks.currentBlock.x--;
 
-        if(this.checkCollision(this.currentBlock)){
-            this.currentBlock.x++;
+        if(this.checkCollision(this.blocks.currentBlock)){
+            this.blocks.currentBlock.x++;
         }
 
         this.updateGhostBlock();
@@ -137,10 +147,10 @@ export default class Playfield{
      Check if any lines are formed and created a new block.
      */
     moveCurrentBlockDown(){
-        this.currentBlock.y++;
+        this.blocks.currentBlock.y++;
 
-        if(this.checkCollision(this.currentBlock)){
-            this.currentBlock.y--;
+        if(this.checkCollision(this.blocks.currentBlock)){
+            this.blocks.currentBlock.y--;
 
             this.saveBlock();
             this.checkLines();
@@ -153,10 +163,10 @@ export default class Playfield{
     }
 
     rotateCurrentBlock(){
-        this.currentBlock.rotateRight();
+        this.blocks.currentBlock.rotateRight();
 
-        if(this.checkCollision(this.currentBlock)){
-            this.currentBlock.rotateLeft();
+        if(this.checkCollision(this.blocks.currentBlock)){
+            this.blocks.currentBlock.rotateLeft();
         }
 
         this.updateGhostBlock();
@@ -227,19 +237,19 @@ export default class Playfield{
     updateGhostBlock(){
         let colission = false;
 
-        this.ghostBlock = new Block(this.currentBlock.x, this.currentBlock.y);
+        this.blocks.ghostBlock       = new Block(this.blocks.currentBlock.x, this.blocks.currentBlock.y);
         //Because the shape is a multi-dimensional array we need to derefference it when copying.
-        this.ghostBlock.shape = this.currentBlock.shape.map(function(row){
+        this.blocks.ghostBlock.shape = this.blocks.currentBlock.shape.map(function(row){
             return row.slice();
         });
-        this.ghostBlock.makeGhost();
+        this.blocks.ghostBlock.makeGhost();
 
         do{
-            this.ghostBlock.y += 1;
+            this.blocks.ghostBlock.y += 1;
 
-            colission = this.checkCollision(this.ghostBlock);
+            colission = this.checkCollision(this.blocks.ghostBlock);
             if(colission){
-                this.ghostBlock.y -= 1;
+                this.blocks.ghostBlock.y -= 1;
             }
         }while(!colission);
     }
@@ -263,20 +273,6 @@ export default class Playfield{
             }
 
         return collision;
-    }
-
-    /*
-     Draw everything to the canvas.
-     */
-    draw(ctx){
-        const tempField = this.renderTempField();
-
-        tempField.map(function(val, y){
-            val.map(function(val, x){
-                ctx.fillStyle = colors[val];
-                ctx.fillRect(x*20, y*20, 20, 20);
-            })
-        });
     }
 
     /*
@@ -307,40 +303,6 @@ export default class Playfield{
 
         document.addEventListener('TetrisTransferHoldBlock', function(e){
             self.holdBlock(e);
-        });
-    }
-
-    /*
-     Returns a new playfield with the currentblock and ghostblock merged into them.
-     */
-    renderTempField(){
-        /*
-         Create a new derefferenced playfield from the current playfield
-         by splicing the row
-         */
-        let tempField = this.canvas.map(function(arr){
-            return arr.slice();
-        });
-
-        //Merge the blocks with the playfield
-        this.renderBlock(tempField, this.ghostBlock);
-        this.renderBlock(tempField, this.currentBlock);
-
-        return tempField;
-    }
-
-    /*
-    Merges a block with a field
-     */
-    renderBlock(field, tetrimino){
-        tetrimino.shape.map(function(arr, j){
-            arr.map(function(val, i){
-                if(val == 0){
-                    return;
-                }
-
-                field[j + tetrimino.y][i + tetrimino.x + 2] = val;
-            })
         });
     }
 }

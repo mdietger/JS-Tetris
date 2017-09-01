@@ -12,8 +12,10 @@ export default class Nextfield extends Field{
             [1,0,0,0,0,0,0,1],
             [1,1,1,1,1,1,1,1]
         ];
-        this.currentBlock = null;
-        this.mergeFields = [this.currentBlock];
+
+        this.blocks = {
+            currentBlock: null
+        };
 
         this.registerListeners();
     }
@@ -34,6 +36,7 @@ export default class Nextfield extends Field{
      */
     setBlock(e){
         const blockType = e.detail.nextBlock;
-        this.currentBlock = new blockType(0, 2);
+
+        this.blocks.currentBlock = new blockType(0, 2);
     }
 }

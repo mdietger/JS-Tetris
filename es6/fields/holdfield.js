@@ -12,9 +12,10 @@ export default class Holdfield extends Field{
             [1,0,0,0,0,0,0,1],
             [1,1,1,1,1,1,1,1]
         ];
-        this.currentBlock = null;
         this.canHold = true;
-        this.mergeFields = [this.currentBlock];
+        this.blocks = {
+            currentBlock: null
+        };
 
         this.registerListeners();
     }
@@ -42,11 +43,11 @@ export default class Holdfield extends Field{
      Set the block to a local variable
      */
     setBlock(e){
-        this.currentBlock = e.detail.holdBlock;
-        this.currentBlock.x = 0;
-        this.currentBlock.y = 2;
-        while(this.currentBlock.rotation != 0){
-            this.currentBlock.rotateLeft();
+        this.blocks.currentBlock = e.detail.holdBlock;
+        this.blocks.currentBlock.x = 0;
+        this.blocks.currentBlock.y = 2;
+        while(this.blocks.currentBlock.rotation != 0){
+            this.blocks.currentBlock.rotateLeft();
         }
     }
 
@@ -65,8 +66,9 @@ export default class Holdfield extends Field{
             return;
         }
 
-        const event = new CustomEvent('TetrisTransferHoldBlock', {detail: {holdBlock: this.currentBlock}});
+        const event = new CustomEvent('TetrisTransferHoldBlock', {detail: {holdBlock: this.blocks.currentBlock}});
+
         document.dispatchEvent(event);
-        this.canHold = false
+        this.canHold = false;
     }
 }
