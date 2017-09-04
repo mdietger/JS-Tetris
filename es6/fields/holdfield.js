@@ -46,7 +46,8 @@ export default class Holdfield extends Field{
         this.blocks.currentBlock = e.detail.holdBlock;
         this.blocks.currentBlock.x = 0;
         this.blocks.currentBlock.y = 2;
-        while(this.blocks.currentBlock.rotation != 0){
+
+        while(this.blocks.currentBlock.rotation !== 0){
             this.blocks.currentBlock.rotateLeft();
         }
     }
@@ -69,6 +70,7 @@ export default class Holdfield extends Field{
         const event = new CustomEvent('TetrisTransferHoldBlock', {detail: {holdBlock: this.blocks.currentBlock}});
 
         document.dispatchEvent(event);
+
         this.canHold = false;
     }
 }

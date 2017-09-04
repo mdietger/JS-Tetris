@@ -45,7 +45,7 @@ export default class Field{
 
         tetrimino.shape.map(function(arr, j){
             arr.map(function(val, i){
-                if(val == 0){
+                if(val === 0){
                     return;
                 }
 

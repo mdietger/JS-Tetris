@@ -40,7 +40,7 @@ export default class Playfield extends Field{
         ];
         this.bag = [];
         this.blocks = {
-            ghostBlock: null,
+            ghostBlock  : null,
             currentBlock: null
         };
 
@@ -64,6 +64,7 @@ export default class Playfield extends Field{
      */
     newBlockFromBag(){
         const blockType = this.bag.shift();
+
         this.blocks.currentBlock = new blockType(3, 0);
         this.updateGhostBlock();
 
@@ -101,6 +102,7 @@ export default class Playfield extends Field{
      */
     holdBlock(e){
         const event = new CustomEvent('TetrisNewHoldBlock', {detail: {holdBlock: this.blocks.currentBlock}});
+
         document.dispatchEvent(event);
 
         if(!e.detail.holdBlock){
@@ -202,12 +204,14 @@ export default class Playfield extends Field{
             if(sumRow > 14){
                 this.canvas.splice(y, 1);
                 this.addNewRow();
+
                 clearedRows++;
             }
         }
 
         if(clearedRows > 0){
             const event = new CustomEvent('TetrisRowsCleared', {detail: {clearedRows: clearedRows}});
+
             document.dispatchEvent(event);
         }
     }

@@ -11,7 +11,8 @@ class Tetris{
             rows  : 'rows',
             level : 'level',
             hold  : 'hold',
-            next  : 'next'
+            next  : 'next',
+            time  : 'time'
         };
         this.tetrisCnvs= document.getElementById(this.selectors.tetris);
         this.holdCnvs  = document.getElementById(this.selectors.hold);
@@ -19,7 +20,7 @@ class Tetris{
         this.holdfield = new Holdfield();
         this.nextfield = new Nextfield();
         this.playfield = new Playfield();
-        this.fps       = 60;
+        this.fps       = 50;
         this.level     = 1;
         this.rows      = 0;
         this.score     = 0;
@@ -106,8 +107,8 @@ class Tetris{
         this.score += Math.floor(50 * Math.pow(1.1, clearedRows) * clearedRows);
         this.level  = Math.floor(this.rows / 20) + 1;
 
-        if(this.level > 23){
-            this.level = 23;
+        if(this.level > 9){
+            this.level = 9;
         }
     }
 
@@ -125,7 +126,7 @@ class Tetris{
     update(){
         this.loopCount++;
 
-        if((this.loopCount % ((this.fps * 2) - (this.level * 5))) == 0){
+        if((this.loopCount % ((this.fps * 2) - (this.level * 10))) === 0){
             this.playfield.moveCurrentBlockDown();
         }
     }
@@ -145,10 +146,11 @@ class Tetris{
         document.getElementById(this.selectors.score).innerText = this.score;
         document.getElementById(this.selectors.rows).innerText  = this.rows;
         document.getElementById(this.selectors.level).innerText = this.level;
+        document.getElementById(this.selectors.time).innerText  = this.getTime();
     }
 
     /*
-     Writes text on a given canvas
+     Writes text on the main canvas
      */
     drawText(text){
         const ctx = this.tetrisCnvs.getContext("2d");
@@ -162,6 +164,13 @@ class Tetris{
         ctx.fillStyle = "#666666";
 
         ctx.fillText(text, 150, 250);
+    }
+
+    /*
+    Returns a time string
+     */
+    getTime(){
+        return new Date(Math.floor(this.loopCount / this.fps) * 1000).toISOString().substr(11, 8);
     }
 
     /*
